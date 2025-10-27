@@ -14,6 +14,7 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)detail\GroundSlider.ipp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)SivGroundSlider.hpp" />
   </ItemGroup>
 </Project>
