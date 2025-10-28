@@ -48,16 +48,23 @@ namespace SivGroundSlider
 
 		void update();
 
+		[[nodiscard]]
 		Optional<TouchFrame> pop();
 
 		bool sendRawCommand(const Array<uint8>& bodyWithoutChecksum);
 
 		// LEDs
+		bool setLED(const Color& rgb, uint8 brightness);
 
+		bool setLED(const Array<Color>& colors31, uint8 brightness);
+
+		[[nodiscard]]
 		bool isOpen() const;
 
+		[[nodiscard]]
 		bool initialized() const;
 
+		[[nodiscard]]
 		const HWInfo& hwInfo() const;
 
 	private:

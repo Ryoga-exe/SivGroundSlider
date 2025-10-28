@@ -9,5 +9,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)detail\GroundSlider.ipp">
       <Filter>detail</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)SivGroundSlider.hpp" />
   </ItemGroup>
 </Project>

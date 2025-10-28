@@ -21,6 +21,15 @@ void Main()
 	size_t index = (options.size() - 1);
 	GroundSlider slider;
 
+	const Array<String> testOptions{
+		U"Color Test (Red)",
+		U"Color Test (Green)",
+		U"Color Test (Blue)",
+		U"I/O Test",
+		U"None",
+	};
+	size_t testIndex = (testOptions.size() - 1);
+
 	while (System::Update())
 	{
 		if (SimpleGUI::RadioButtons(index, options, Vec2{ 200, 60 }))
@@ -58,16 +67,15 @@ void Main()
 		}
 
 		bool enable = slider.initialized();
-		if (SimpleGUI::Button(U"Color test (Red)", Vec2{ 200, 300 }, unspecified, enable))
+		if (SimpleGUI::RadioButtons(testIndex, testOptions, Vec2{ 200, 300 }, unspecified, enable))
 		{
-
-		}
-		if (SimpleGUI::Button(U"Color test (Green)", Vec2{ 200, 350 }, unspecified, enable))
-		{
-
-		}
-		if (SimpleGUI::Button(U"Color test (Blue)", Vec2{ 200, 400 }, unspecified, enable))
-		{
+			switch (testIndex)
+			{
+				case 0: slider.setLED(Color{ 255, 0, 0 }); break;
+				case 1: slider.setLED(Color{ 0, 255, 0 }); break;
+				case 2: slider.setLED(Color{ 0, 0, 255 }); break;
+				default : slider.setLED(Color{ 0, 0, 0 }); break;
+			}
 		}
 	}
 }

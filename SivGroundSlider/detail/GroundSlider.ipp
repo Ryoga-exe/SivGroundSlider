@@ -62,6 +62,38 @@ namespace SivGroundSlider
 		return m_initialized;
 	}
 
+	bool GroundSlider::startInput()
+	{
+		return m_serial.isOpen() and sendRawCommand({ 0xFF, 0x03, 0x00 });
+	}
+
+	bool GroundSlider::stopInput()
+	{
+		return m_serial.isOpen() and sendRawCommand({ 0xFF, 0x04, 0x00 });
+	}
+
+	void GroundSlider::update()
+	{
+		if (not m_serial.isOpen()) {
+			return;
+		}
+		pumpRx();
+		while (consumeOnePacket())
+		{
+			// TODO: implement
+		}
+	}
+
+	Optional<TouchFrame> GroundSlider::pop()
+	{
+		if (not m_serial.isOpen() or m_queue.empty())
+		{
+			return none;
+		}
+		TouchFrame f = m_queue.front();
+		m_queue.pop_front();
+		return f;
+	}
 
 	bool GroundSlider::sendRawCommand(const Array<uint8>& body)
 	{
@@ -71,6 +103,35 @@ namespace SivGroundSlider
 			return false;
 		}
 		return m_serial.writeByte(checksum);
+	}
+
+	// LEDs
+	bool GroundSlider::setLED(const Color& rgb, uint8 brightness = 63)
+	{
+		Array<Color> cols(31, rgb);
+		return setLED(cols, brightness);
+	}
+
+	bool GroundSlider::setLED(const Array<Color>& color31, uint8 brightness = 63)
+	{
+		if (not m_serial.isOpen() or color31.size() != 31)
+		{
+			return false;
+		}
+
+		Array<uint8> packet;
+		packet.reserve(4 + 1 + 93);
+		packet << 0xFF << 0x02 << static_cast<uint8>(1 + 31 * 3) << brightness;
+		for (const auto& c : color31)
+		{
+			static const auto clamp = [](uint8 v) -> uint8
+				{
+					return std::clamp(v, uint8{ 0 }, uint8{ 0xFC });
+				};
+			packet << clamp(c.b) << clamp(c.r) << clamp(c.g);
+		}
+		sendRawCommand(packet);
+		return true;
 	}
 
 	bool GroundSlider::isOpen() const
@@ -149,6 +210,7 @@ namespace SivGroundSlider
 				ok = true;
 				break;
 			}
+			System::Sleep(1);
 		}
 		return ok;
 	}
