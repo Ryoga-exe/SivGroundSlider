@@ -4,6 +4,25 @@
 
 namespace SivGroundSlider
 {
+	struct HWInfo
+	{
+		String model;
+		uint8 deviceClass;
+		String chipPartNumber;
+		uint8 unk_0xe;
+		uint8 firmwareVerison;
+		uint8 unk_0x10;
+		uint8 unk_0x11;
+		bool valid = false;
+	};
+
+	struct Packet
+	{
+		uint8 cmd = 0;
+		uint8 len = 0;
+		Array<uint8> payload;
+	};
+
 	struct TouchFrame
 	{
 		std::array<uint8, 32> zones{};
@@ -33,32 +52,59 @@ namespace SivGroundSlider
 
 		bool sendRawCommand(const Array<uint8>& bodyWithoutChecksum);
 
-		bool readUntilByteLength(size_t len, uint32 timeoutMS = 800);
-
 		// LEDs
 
 		bool isOpen() const;
 
 		bool initialized() const;
 
+		const HWInfo& hwInfo() const;
+
 	private:
 		Serial m_serial;
 		bool m_initialized = false;
-		bool valid = false;
+		HWInfo m_hw{};
 
 		Array<uint8> m_rxBuffer;
+		Packet m_lastPacket{};
 		std::deque<TouchFrame> m_queue;
-		uint8 m_brightness{ 0x3F };
+		uint8 m_brightness = 0x3F;
+		bool m_sync = false;
+
+		void pumpRx();
+		bool consumeOnePacket();
+		bool consumeUntilOnePacket(uint32 timeoutMS = 800);
 	};
 
-	static uint8 Checksum(std::span<const uint8> body)
+	static uint8 Checksum(std::span<const uint8> payload)
 	{
 		uint32 s = 0;
-		for (const auto& byte : body)
+		for (const auto& byte : payload)
 		{
 			s += byte;
 		}
 		return static_cast<uint8>((~s + 1) & 0xFF);
+	}
+
+	static HWInfo ParseHWInfo(std::span<const uint8> payload)
+	{
+		HWInfo info;
+
+		if (payload.size() < 18)
+		{
+			return info;
+		}
+
+		info.model = String{ payload.begin(), payload.begin() + 8 };
+		info.deviceClass = payload[8];
+		info.chipPartNumber = String{ payload.begin() + 9, payload.begin() + 14 };
+		info.unk_0xe = payload[14];
+		info.firmwareVerison = payload[15];
+		info.unk_0x10 = payload[16];
+		info.unk_0x11 = payload[17];
+		info.valid = true;
+
+		return info;
 	}
 }
 
