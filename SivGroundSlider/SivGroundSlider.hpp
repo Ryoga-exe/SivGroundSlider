@@ -78,6 +78,8 @@ namespace SivGroundSlider
 		uint8 m_brightness = 0x3F;
 		bool m_sync = false;
 
+		static constexpr inline int32 MaxQueue = 128;
+
 		void pumpRx();
 		bool consumeOnePacket();
 		bool consumeUntilOnePacket(uint32 timeoutMS = 800);

@@ -80,7 +80,18 @@ namespace SivGroundSlider
 		pumpRx();
 		while (consumeOnePacket())
 		{
-			// TODO: implement
+			if (m_lastPacket.cmd == 0x01 and m_lastPacket.len == 0x20 and m_lastPacket.payload.size() == 32)
+			{
+				TouchFrame f{};
+				std::memcpy(f.zones.data(), m_lastPacket.payload.data(), 32);
+				f.timestampMS = Time::GetMillisec();
+
+				if (m_queue.size() >= MaxQueue)
+				{
+					m_queue.pop_front();
+				}
+				m_queue.push_back(f);
+			}
 		}
 	}
 
