@@ -74,7 +74,8 @@ namespace SivGroundSlider
 
 	void GroundSlider::update()
 	{
-		if (not m_serial.isOpen()) {
+		if (not m_serial.isOpen())
+		{
 			return;
 		}
 		pumpRx();
